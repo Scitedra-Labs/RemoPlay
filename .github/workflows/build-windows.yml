@@ -3,6 +3,9 @@ name: Build Remo Play Windows x64
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
   workflow_dispatch:
     inputs:
       libplacebo_version:
