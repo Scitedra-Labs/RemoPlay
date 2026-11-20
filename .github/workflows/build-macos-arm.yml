@@ -6,7 +6,11 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-mac_arm64_github:
@@ -82,3 +86,13 @@ jobs:
           path: chiaki-ng.dmg
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish to the "latest" release
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp chiaki-ng.dmg RemoPlay-macOS.dmg
+          gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "Remo Play" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
+          gh release upload latest RemoPlay-macOS.dmg --repo ${{ github.repository }} --clobber

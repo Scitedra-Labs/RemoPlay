@@ -6,7 +6,11 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-android:
@@ -41,3 +45,13 @@ jobs:
           path: android/app/build/outputs/apk/**/*.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish to the "latest" release
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp "$(find android/app/build/outputs/apk -name '*.apk' | head -1)" RemoPlay-Android.apk
+          gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "Remo Play" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
+          gh release upload latest RemoPlay-Android.apk --repo ${{ github.repository }} --clobber
