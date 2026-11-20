@@ -112,23 +112,21 @@
                 android:alpha="0.6"
                 android:layout_marginTop="8dp"/>
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/psnAccountIdHelpURLTextView"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/psnLoginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/psnAccountIdHelpTextView"
-                android:text="@string/regist_psn_account_id_help_url"
-                android:textSize="12sp"
-                android:gravity="center_horizontal"
-                android:autoLink="web"
-                android:textAppearance="?attr/textAppearanceBody1"/>
+                style="@style/MageTheme.Button"
+                android:text="@string/regist_psn_login_button"
+                android:layout_marginTop="8dp" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/psnAccountIdHelpGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="visible"
-                app:constraint_referenced_ids="psnAccountIdHelpTextView,psnAccountIdHelpURLTextView"/>
+                app:constraint_referenced_ids="psnAccountIdHelpTextView"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/psnIdTextInputLayout"
@@ -136,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_regist_psn_online_id"
                 app:startIconDrawable="@drawable/ic_psn_id"
-                app:layout_constraintTop_toBottomOf="@id/psnAccountIdHelpURLTextView"
+                app:layout_constraintTop_toBottomOf="@id/psnLoginButton"
                 android:layout_marginTop="16dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/psnIdEditText"

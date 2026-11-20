@@ -33,10 +33,10 @@
     <string name="regist_option_ps4_ge_7">PS4 ≥ 7.0, &lt; 8</string>
     <string name="regist_option_ps4_ge_8">PS4 ≥ 8.0</string>
     <string name="regist_option_ps5">PS5</string>
-    <string name="regist_psn_account_id_help">About obtaining your Account ID, see</string>
+    <string name="regist_psn_account_id_help">Sign in to your PlayStation account once and the Account ID is filled in for you:</string>
     <string name="regist_psn_account_id_help_url">https://git.sr.ht/~thestr4ng3r/chiaki/tree/master/item/README.md#obtaining-your-psn-accountid</string>
     <string name="hint_regist_psn_online_id">PSN Online ID (username, case-sensitive)</string>
-    <string name="hint_regist_psn_account_id">PSN Account ID (8 bytes, base64)</string>
+    <string name="hint_regist_psn_account_id">PSN Account ID (filled in after sign-in)</string>
     <string name="hint_regist_pin">PIN</string>
     <string name="action_regist">Register</string>
     <string name="entered_host_invalid">Please enter a valid host name</string>
@@ -105,6 +105,12 @@
     <string name="display_hosts_empty_discovery_on_info">No consoles added or discovered.</string>
     <string name="stream_on_screen_controls">On-Screen Controls</string>
     <string name="stream_touchpad_only">Touchpad only</string>
+
+    <string name="regist_psn_login_button">Sign in to PlayStation</string>
+
+    <string name="regist_psn_login_title">PlayStation sign-in</string>
+
+    <string name="regist_psn_login_failed">Sign-in did not complete. Please try again.</string>
 
     <!-- Don't localize these -->
     <string name="preferences_discovery_enabled_key">discovery_enabled</string>

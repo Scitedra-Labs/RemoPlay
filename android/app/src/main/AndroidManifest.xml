@@ -36,6 +36,8 @@
                 />
         </provider>
 
+        <activity android:name=".regist.PsnLoginActivity" android:exported="false" android:configChanges="orientation|screenSize|keyboardHidden" />
+
         <activity android:name=".main.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:exported="true">

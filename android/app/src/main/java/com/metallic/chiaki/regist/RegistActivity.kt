@@ -28,6 +28,9 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 		private const val PIN_LENGTH = 8
 
 		private const val REQUEST_REGIST = 1
+		private const val REQUEST_PSN_LOGIN = 2
+		private const val PREFS_NAME = "remoplay_psn"
+		private const val PREF_ACCOUNT_ID = "account_id"
 	}
 
 	private lateinit var viewModel: RegistViewModel
@@ -51,6 +54,14 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 
 		binding.registButton.setOnClickListener { doRegist() }
 
+		// Sign in on Sony's page to fetch the Account ID; remember it for the next registration
+		binding.psnLoginButton.setOnClickListener {
+			startActivityForResult(Intent(this, PsnLoginActivity::class.java), REQUEST_PSN_LOGIN)
+		}
+		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString(PREF_ACCOUNT_ID, null)?.let {
+			binding.psnIdEditText.setText(it)
+		}
+
 		binding.ps4VersionRadioGroup.check(when(viewModel.ps4Version.value ?: RegistViewModel.ConsoleVersion.PS5) {
 			RegistViewModel.ConsoleVersion.PS5 -> R.id.ps5RadioButton
 			RegistViewModel.ConsoleVersion.PS4_GE_8 -> R.id.ps4VersionGE8RadioButton
@@ -71,6 +82,7 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 
 		viewModel.ps4Version.observe(this, Observer {
 			binding.psnAccountIdHelpGroup.visibility = if(it == RegistViewModel.ConsoleVersion.PS4_LT_7) View.GONE else View.VISIBLE
+			binding.psnLoginButton.visibility = if(it == RegistViewModel.ConsoleVersion.PS4_LT_7) View.GONE else View.VISIBLE
 			binding.psnIdTextInputLayout.hint = getString(when(it!!)
 			{
 				RegistViewModel.ConsoleVersion.PS4_LT_7 -> R.string.hint_regist_psn_online_id
@@ -144,5 +156,13 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 		super.onActivityResult(requestCode, resultCode, data)
 		if(requestCode == REQUEST_REGIST && resultCode == RESULT_OK)
 			finish()
+		if(requestCode == REQUEST_PSN_LOGIN && resultCode == RESULT_OK)
+		{
+			val accountId = data?.getStringExtra(PsnLoginActivity.EXTRA_ACCOUNT_ID) ?: return
+			binding.psnIdEditText.setText(accountId)
+			binding.psnIdEditText.error = null
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_ACCOUNT_ID, accountId).apply()
+			binding.pinEditText.requestFocus()
+		}
 	}
 }

@@ -26,13 +26,13 @@
     <string name="regist_pin_instructions_ps4_navigation">הגדרות ←\nהגדרות חיבור Remote Play ←\nהוסף מכשיר</string>
     <string name="regist_pin_instructions_ps5_before">בפלייסטיישן 5, עבור אל</string>
     <string name="regist_pin_instructions_ps5_navigation">הגדרות ←\nמערכת ← Remote Play ←\nקישור מכשיר</string>
-    <string name="regist_pin_instructions_after">כדי לקבל את הקוד</string>
+    <string name="regist_pin_instructions_after">כדי לקבל קוד חד-פעמי בן 8 ספרות</string>
     <string name="title_regist">רישום קונסולה</string>
     <string name="hint_regist_host">כתובת</string>
     <string name="regist_broadcast">שידור לכל הרשת</string>
-    <string name="regist_psn_account_id_help">איך מקבלים את מזהה החשבון:</string>
+    <string name="regist_psn_account_id_help">מתחברים פעם אחת לחשבון הפלייסטיישן, והמזהה מתמלא לבד:</string>
     <string name="hint_regist_psn_online_id">שם משתמש ב-PSN (עם הקפדה על אותיות גדולות וקטנות)</string>
-    <string name="hint_regist_psn_account_id">מזהה חשבון PSN (‏8 בתים, base64)</string>
+    <string name="hint_regist_psn_account_id">מזהה חשבון PSN (מתמלא אחרי ההתחברות)</string>
     <string name="hint_regist_pin">קוד</string>
     <string name="action_regist">רשום</string>
     <string name="entered_host_invalid">יש להזין כתובת תקינה</string>
@@ -94,4 +94,7 @@
     <string name="display_hosts_empty_discovery_on_info">לא נוספו ולא נמצאו קונסולות.</string>
     <string name="stream_on_screen_controls">כפתורים על המסך</string>
     <string name="stream_touchpad_only">משטח מגע בלבד</string>
+    <string name="regist_psn_login_button">התחברות לחשבון PlayStation</string>
+    <string name="regist_psn_login_title">התחברות ל-PlayStation</string>
+    <string name="regist_psn_login_failed">ההתחברות לא הושלמה. נסו שוב.</string>
 </resources>

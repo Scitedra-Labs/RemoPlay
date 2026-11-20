@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#162d50</color>
-    <color name="primary_dark">#000128</color>
-    <color name="accent">#ffaaee</color>
+    <color name="primary">#1b2030</color>
+    <color name="primary_dark">#12151f</color>
+    <color name="accent">#ff9f43</color>
+    <color name="text_primary">#ffffff</color>
+    <color name="text_secondary">#b6bdce</color>
 
     <color name="stream_text">@android:color/white</color>
     <color name="stream_background">@android:color/black</color>
