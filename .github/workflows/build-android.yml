@@ -23,7 +23,10 @@ jobs:
           java-version: 17
 
       - name: Install protobuf
-        run: pip3 install --user 'protobuf>=5,<6' --break-system-packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          pip3 install --user 'protobuf>=5,<6' --break-system-packages
 
       - name: Build debug APK
         working-directory: android
