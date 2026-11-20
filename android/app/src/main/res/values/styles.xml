@@ -1,5 +1,7 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Android 15 draws apps under the system bars by default; keep content above the navigation bar -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorSurface">@color/primary</item>
         <item name="colorOnSurface">@color/text_primary</item>
@@ -52,6 +54,8 @@
     </style>
 
     <style name="MageTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Android 15 draws apps under the system bars by default; keep content above the navigation bar -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorSurface">@color/primary</item>
         <item name="colorOnSurface">@color/text_primary</item>
