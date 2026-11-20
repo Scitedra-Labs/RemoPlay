@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">רימו פליי</string>
-    <string name="title_main">רימו פליי</string>
+    <string name="app_name">RemoPlay</string>
+    <string name="title_main">RemoPlay</string>
     <string name="title_settings">הגדרות</string>
     <string name="alert_message_standby_wakeup">הקונסולה נמצאת במצב מנוחה. לשלוח לה פקודת התעוררות במקום לנסות להתחבר מיד?</string>
     <string name="alert_message_session_quit">המשחק הסתיים: %s</string>

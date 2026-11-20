@@ -130,7 +130,7 @@ Pane {
             ColumnLayout {
                 spacing: 0
                 Label {
-                    text: qsTr("Remo Play")
+                    text: "RemoPlay"
                     font.pixelSize: 34
                     font.bold: true
                     color: Material.accent

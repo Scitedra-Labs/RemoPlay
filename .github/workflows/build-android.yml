@@ -1,4 +1,4 @@
-name: Build Remo Play Android
+name: Build RemoPlay Android
 
 on:
   workflow_dispatch:
@@ -56,5 +56,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp "$(find android/app/build/outputs/apk -name '*.apk' | head -1)" RemoPlay-Android.apk
-          gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "Remo Play" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
+          gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "RemoPlay" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
           gh release upload latest RemoPlay-Android.apk --repo ${{ github.repository }} --clobber

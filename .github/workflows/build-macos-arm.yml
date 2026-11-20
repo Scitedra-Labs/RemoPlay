@@ -1,4 +1,4 @@
-name: Build Remo Play macOS (Apple Silicon)
+name: Build RemoPlay macOS (Apple Silicon)
 
 on:
   workflow_dispatch:
@@ -74,12 +74,12 @@ jobs:
           install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/libSDL2-2.0.0.dylib chiaki-ng.app/Contents/MacOS/chiaki || true
           install_name_tool -change /opt/homebrew/lib/libSDL2-2.0.0.dylib @executable_path/libSDL2-2.0.0.dylib chiaki-ng.app/Contents/MacOS/chiaki || true
           ln -s libvulkan.1.dylib chiaki-ng.app/Contents/Frameworks/vulkan
-          /usr/libexec/PlistBuddy -c "Set :CFBundleName Remo Play" chiaki-ng.app/Contents/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleName RemoPlay" chiaki-ng.app/Contents/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.scitedra.remoplay" chiaki-ng.app/Contents/Info.plist
           codesign --force --entitlements gui/entitlements.xml --deep --sign - chiaki-ng.app
           rm -f chiaki-ng.dmg
-          mv chiaki-ng.app "Remo Play.app"
-          hdiutil create -volname "Remo Play" -srcfolder "Remo Play.app" chiaki-ng.dmg
+          mv chiaki-ng.app "RemoPlay.app"
+          hdiutil create -volname "RemoPlay" -srcfolder "RemoPlay.app" chiaki-ng.dmg
           codesign --force --entitlements gui/entitlements.xml --deep --sign - chiaki-ng.dmg
 
       - name: Upload chiaki-ng Artifact
@@ -97,5 +97,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp chiaki-ng.dmg RemoPlay-macOS.dmg
-          gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "Remo Play" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
+          gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "RemoPlay" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
           gh release upload latest RemoPlay-macOS.dmg --repo ${{ github.repository }} --clobber
