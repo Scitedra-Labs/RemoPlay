@@ -181,6 +181,8 @@ public:
     void disableZeroCopy() { disable_zero_copy = true; };
     void enableZeroCopy()  { disable_zero_copy = false; };
 
+    Q_INVOKABLE QString uiLanguage() const;
+    Q_INVOKABLE void setUiLanguage(const QString &language);
     Q_INVOKABLE void deleteHost(int index);
     Q_INVOKABLE void wakeUpHost(int index, QString nickname = QString());
     Q_INVOKABLE void addManualHost(int index, const QString &address);

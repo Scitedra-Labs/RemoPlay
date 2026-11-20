@@ -1302,4 +1302,11 @@ Item {
                 sessionLoading = false;
         }
     }
+
+    // Hebrew connection-quality badge (isolated in a Loader on purpose)
+    Loader {
+        anchors.fill: parent
+        source: "qrc:/ConnectionBadge.qml"
+        active: !!Chiaki.session
+    }
 }

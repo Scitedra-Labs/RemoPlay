@@ -1,3 +1,4 @@
+#include <QSettings>
 #include "qmlbackend.h"
 #include "qmlsettings.h"
 #include "qmlmainwindow.h"
@@ -2649,6 +2650,16 @@ void QmlBackend::updatePsnHostsThread()
     qCInfo(chiakiGui) << "Updated PSN hosts";
     if(device_info_ps5)
         chiaki_holepunch_free_device_list(&device_info_ps5);
+}
+
+QString QmlBackend::uiLanguage() const
+{
+    return QSettings("Chiaki", "RemoPlay").value("language", "he").toString();
+}
+
+void QmlBackend::setUiLanguage(const QString &language)
+{
+    QSettings("Chiaki", "RemoPlay").setValue("language", language);
 }
 
 void QmlBackend::refreshPsnToken()

@@ -21,6 +21,35 @@ int main(int argc, char *argv[]) { return real_main(argc, argv); }
 #include <qmlmainwindow.h>
 #include <QApplication>
 #include <QtTypes>
+#include <QTranslator>
+#include <QSettings>
+#include <QFile>
+#include <QHash>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+// UI languages: a small translator that reads source-text -> translation pairs from a JSON
+// resource (gui/res/<language>.json). English is the source language and needs no file.
+class JsonTranslator : public QTranslator
+{
+	public:
+		explicit JsonTranslator(const QString &language, QObject *parent = nullptr) : QTranslator(parent)
+		{
+			QFile f(QString(":/i18n/%1.json").arg(language));
+			if(!f.open(QIODevice::ReadOnly))
+				return;
+			const QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
+			for(auto it = obj.begin(); it != obj.end(); ++it)
+				map.insert(it.key(), it.value().toString());
+		}
+		bool isEmpty() const override { return map.isEmpty(); }
+		QString translate(const char *, const char *sourceText, const char *, int) const override
+		{
+			return map.value(QString::fromUtf8(sourceText));
+		}
+	private:
+		QHash<QString, QString> map;
+};
 
 #ifdef CHIAKI_ENABLE_CLI
 #include <chiaki-cli.h>
@@ -76,7 +105,7 @@ int real_main(int argc, char *argv[])
 	QGuiApplication::setOrganizationName("Chiaki");
 	QGuiApplication::setApplicationName("Chiaki");
 	QGuiApplication::setApplicationVersion(CHIAKI_VERSION);
-	QGuiApplication::setApplicationDisplayName("chiaki-ng");
+	QGuiApplication::setApplicationDisplayName(QString::fromUtf8("רימו פליי"));
 #if defined(Q_OS_MACOS)
 	// Use a plain CAMetalLayer for Vulkan windows. Qt's own layer presents in step with each
 	// live resize, but our swapchain presents from the render thread, so every resize step
@@ -142,6 +171,14 @@ int real_main(int argc, char *argv[])
 	QtWebEngineQuick::initialize();
 #endif
 	QApplication app(argc, argv);
+	{
+		// Hebrew is the default language; the choice made in the app is stored here
+		QString ui_language = QSettings("Chiaki", "RemoPlay").value("language", "he").toString();
+		if(qEnvironmentVariableIsSet("REMOPLAY_LANG"))
+			ui_language = qEnvironmentVariable("REMOPLAY_LANG");
+		if(ui_language != "en")
+			app.installTranslator(new JsonTranslator(ui_language, &app));
+	}
 
 #ifdef Q_OS_MACOS
 	QGuiApplication::setWindowIcon(QIcon(":/icons/chiaking_macos.svg"));
@@ -204,7 +241,7 @@ int real_main(int argc, char *argv[])
 		settings.SetCurrentProfile(parser.value(profile_option));
 	Settings alt_settings(parser.isSet(profile_option) ? "" : settings.GetCurrentProfile());
 	if(!settings.GetCurrentProfile().isEmpty())
-		QGuiApplication::setApplicationDisplayName(QString("chiaki-ng:%1").arg(settings.GetCurrentProfile()));
+		QGuiApplication::setApplicationDisplayName(QString::fromUtf8("רימו פליי: %1").arg(settings.GetCurrentProfile()));
 	bool use_alt_settings = false;
 	if(!parser.isSet(profile_option))
 		use_alt_settings = true;

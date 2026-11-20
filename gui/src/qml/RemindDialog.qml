@@ -56,6 +56,8 @@ Dialog {
     }
 
     ColumnLayout {
+        LayoutMirroring.enabled: root.rtl
+        LayoutMirroring.childrenInherit: true
         spacing: 20
 
         Label {
@@ -73,7 +75,8 @@ Dialog {
                 text: qsTr("Yes")
                 Material.background: Material.accent
                 flat: true
-                leftPadding: 50
+                leftPadding: root.rtl ? 16 : 50
+                rightPadding: root.rtl ? 50 : 16
                 onClicked: dialog.accept()
                 Material.roundedScale: Material.SmallScale
 
@@ -94,7 +97,8 @@ Dialog {
                 Material.background: Material.accent
                 text: qsTr("No")
                 flat: true
-                leftPadding: 50
+                leftPadding: root.rtl ? 16 : 50
+                rightPadding: root.rtl ? 50 : 16
                 onClicked: dialog.reject()
                 Material.roundedScale: Material.SmallScale
 
@@ -115,7 +119,8 @@ Dialog {
                 Material.background: Material.accent
                 text: qsTr("Remind Me Later")
                 flat: true
-                leftPadding: 50
+                leftPadding: root.rtl ? 16 : 50
+                rightPadding: root.rtl ? 50 : 16
                 onClicked: dialog.close()
                 Material.roundedScale: Material.SmallScale
 

@@ -9,10 +9,14 @@ Item {
     id: root
     property list<Item> restoreFocusItems
     property bool initialAsk: false
+    // "LTR" is translated to "RTL" by right-to-left language files (see gui/res/he.json)
+    readonly property bool rtl: qsTr("LTR") === "RTL"
     readonly property bool preferSeparateStreamSettingsWindows: Chiaki.window.runtimeRendererBackend === 1 && Chiaki.session
     property bool useSeparateStreamSettingsWindows: false
     Material.theme: Material.Dark
-    Material.accent: "#00a7ff"
+    Material.accent: "#ff9f43"
+    Material.primary: "#1b2030"
+    Material.background: "#12151f"
 
     function controllerButton(name) {
         let type = "deck";
@@ -476,6 +480,8 @@ Item {
         }
 
         ColumnLayout {
+            LayoutMirroring.enabled: root.rtl
+            LayoutMirroring.childrenInherit: true
             spacing: 20
 
             Label {
@@ -491,7 +497,8 @@ Item {
                     text: qsTr("OK")
                     Material.background: Material.accent
                     flat: true
-                    leftPadding: 50
+                    leftPadding: root.rtl ? 16 : 50
+                    rightPadding: root.rtl ? 50 : 16
                     onClicked: infoDialog.close()
                     Material.roundedScale: Material.SmallScale
 

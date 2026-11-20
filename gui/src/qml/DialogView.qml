@@ -5,6 +5,9 @@ import QtQuick.Controls.Material
 
 Item {
     id: dialog
+    // Hebrew UI: dialogs are laid out right-to-left
+    LayoutMirroring.enabled: root.rtl
+    LayoutMirroring.childrenInherit: true
     property alias header: headerLabel.text
     property alias title: titleLabel.text
     property alias buttonText: okButton.text
@@ -69,7 +72,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.preferredWidth: 100
                 flat: true
-                text: "❮"
+                text: root.rtl ? "❯" : "❮"
                 focusPolicy: Qt.NoFocus
                 Material.roundedScale: Material.SmallScale
                 onClicked: {
