@@ -557,10 +557,8 @@ Item {
                 showRegistDialog(host, ps5);
             else
             {
-                if(ps5)
-                    root.showConfirmDialog(qsTr("Registration Type"), qsTr("Would you like to use automatic registration?"), () => root.autoRegister(true, host, ps5), () => root.autoRegister(false, host, ps5))
-                else
-                    root.showConfirmDialog(qsTr("Registration Type"), qsTr("Would you like to use automatic registration (must be main PS4 console registered to your PSN)?"), () => root.autoRegister(true, host, ps5), () => root.autoRegister(false, host, ps5))
+                // Signed in to PSN: register automatically, no questions asked
+                root.autoRegister(true, host, ps5);
             }
         }
 

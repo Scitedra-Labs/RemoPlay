@@ -54,6 +54,13 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 
 		binding.registButton.setOnClickListener { doRegist() }
 
+		// Address, broadcast and console type are only needed in unusual setups; keep them out of the way
+		binding.advancedToggleButton.setOnClickListener {
+			val show = binding.advancedGroup.visibility != View.VISIBLE
+			binding.advancedGroup.visibility = if(show) View.VISIBLE else View.GONE
+			binding.advancedToggleButton.setText(if(show) R.string.regist_advanced_hide else R.string.regist_advanced_show)
+		}
+
 		// Sign in on Sony's page to fetch the Account ID; remember it for the next registration
 		binding.psnLoginButton.setOnClickListener {
 			startActivityForResult(Intent(this, PsnLoginActivity::class.java), REQUEST_PSN_LOGIN)

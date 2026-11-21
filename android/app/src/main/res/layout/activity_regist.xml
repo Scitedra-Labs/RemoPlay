@@ -202,5 +202,22 @@
                 android:text="@string/action_regist"
                 android:layout_marginTop="32dp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/advancedToggleButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/registButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="@color/text_secondary"
+                android:text="@string/regist_advanced_show"
+                android:layout_marginTop="8dp" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/advancedGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="hostTextInputLayout,broadcastCheckBox,ps4VersionRadioGroup"/>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

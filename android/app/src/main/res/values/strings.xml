@@ -26,7 +26,7 @@
     <string name="regist_pin_instructions_ps5_before">On the PS5, navigate to</string>
     <string name="regist_pin_instructions_ps5_navigation">Settings →\nSystem → Remote Play →\nLink Device</string>
     <string name="regist_pin_instructions_after">to obtain the PIN</string>
-    <string name="title_regist">Register Console</string>
+    <string name="title_regist">Connect a console</string>
     <string name="hint_regist_host">Host</string>
     <string name="regist_broadcast">Broadcast</string>
     <string name="regist_option_ps4_lt_7">PS4 &lt; 7.0</string>
@@ -111,6 +111,10 @@
     <string name="regist_psn_login_title">PlayStation sign-in</string>
 
     <string name="regist_psn_login_failed">Sign-in did not complete. Please try again.</string>
+
+    <string name="regist_advanced_show">Advanced options (PS4, address)</string>
+
+    <string name="regist_advanced_hide">Hide advanced options</string>
 
     <!-- Don't localize these -->
     <string name="preferences_discovery_enabled_key">discovery_enabled</string>

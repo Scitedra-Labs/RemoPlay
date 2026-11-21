@@ -24,13 +24,13 @@
     <string name="action_add_manual">הוספת קונסולה ידנית</string>
     <string name="regist_pin_instructions_ps4_before">בפלייסטיישן 4, עבור אל</string>
     <string name="regist_pin_instructions_ps4_navigation">הגדרות ←\nהגדרות חיבור Remote Play ←\nהוסף מכשיר</string>
-    <string name="regist_pin_instructions_ps5_before">בפלייסטיישן 5, עבור אל</string>
+    <string name="regist_pin_instructions_ps5_before">שלב 2: בפלייסטיישן 5, עברו אל</string>
     <string name="regist_pin_instructions_ps5_navigation">הגדרות ←\nמערכת ← Remote Play ←\nקישור מכשיר</string>
     <string name="regist_pin_instructions_after">כדי לקבל קוד חד-פעמי בן 8 ספרות</string>
-    <string name="title_regist">רישום קונסולה</string>
+    <string name="title_regist">חיבור קונסולה</string>
     <string name="hint_regist_host">כתובת</string>
     <string name="regist_broadcast">שידור לכל הרשת</string>
-    <string name="regist_psn_account_id_help">מתחברים פעם אחת לחשבון הפלייסטיישן, והמזהה מתמלא לבד:</string>
+    <string name="regist_psn_account_id_help">שלב 1: מתחברים פעם אחת לחשבון ה-PlayStation</string>
     <string name="hint_regist_psn_online_id">שם משתמש ב-PSN (עם הקפדה על אותיות גדולות וקטנות)</string>
     <string name="hint_regist_psn_account_id">מזהה חשבון PSN (מתמלא אחרי ההתחברות)</string>
     <string name="hint_regist_pin">קוד</string>
@@ -97,4 +97,6 @@
     <string name="regist_psn_login_button">התחברות לחשבון PlayStation</string>
     <string name="regist_psn_login_title">התחברות ל-PlayStation</string>
     <string name="regist_psn_login_failed">ההתחברות לא הושלמה. נסו שוב.</string>
+    <string name="regist_advanced_show">אפשרויות מתקדמות (PS4, כתובת)</string>
+    <string name="regist_advanced_hide">הסתר אפשרויות מתקדמות</string>
 </resources>

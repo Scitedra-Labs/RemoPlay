@@ -12,6 +12,7 @@ Pane {
     LayoutMirroring.enabled: root.rtl
     LayoutMirroring.childrenInherit: true
     property string uiLang: Chiaki.uiLanguage()
+    readonly property bool psnSignedIn: !!Chiaki.settings.psnAuthToken && !!Chiaki.settings.psnAccountId
     readonly property color cardColor: "#1b2030"
     readonly property color cardBorder: "#2b3246"
     readonly property color softText: "#9aa3b8"
@@ -44,7 +45,7 @@ Pane {
         Chiaki.settings.vSyncEnabled = false;
     }
     function showGuide() {
-        root.showInfoDialog(qsTr("How to start playing"), qsTr("1. On the PS5: Settings > System > Remote Play > Enable Remote Play.\n    On the PS4: Settings > Remote Play Connection Settings > Enable.\n\n2. Make sure the console and this computer are on the same home network.\n    The console appears on this screen by itself within a few seconds.\n\n3. Click First connection and sign in to your PSN account.\n    Registration is needed only once.\n\n4. Connect the controller by USB cable or Bluetooth and click Play.\n\nTip: for full DualSense haptics connect the controller by USB cable."));
+        root.showInfoDialog(qsTr("How to start playing"), qsTr("1. On the PS5: Settings > System > Remote Play > Enable Remote Play.\n    On the PS4: Settings > Remote Play Connection Settings > Enable.\n\n2. Make sure the console and this computer are on the same home network.\n    The console appears on this screen by itself within a few seconds.\n\n3. Sign in to your PlayStation account, then click Connect on the console.\n    Registration is needed only once.\n\n4. Connect the controller by USB cable or Bluetooth and click Play.\n\nTip: for full DualSense haptics connect the controller by USB cable."));
     }
     background: Rectangle {
         gradient: Gradient {
@@ -57,13 +58,6 @@ Pane {
         if(!Chiaki.autoConnect && !root.initialAsk && !Chiaki.window.directStream)
         {
             root.initialAsk = true;
-            if(Chiaki.settings.remotePlayAsk)
-            {
-                if(!Chiaki.settings.psnRefreshToken || !Chiaki.settings.psnAuthToken || !Chiaki.settings.psnAuthTokenExpiry || !Chiaki.settings.psnAccountId)
-                    root.showRemindDialog(qsTr("Remote Play via PSN"), qsTr("Would you like to connect to PSN?\nThis enables:\n- Automatic registration\n- Playing outside of your home network without port forwarding?") + "\n\n" + qsTr("(Note: If you select no now and want to do this later, go to the Config section of the settings.)"), true, () => root.showPSNTokenDialog(false));
-                else
-                    Chiaki.settings.remotePlayAsk = false;
-            }
         }
     }
     Keys.onUpPressed: {
@@ -225,6 +219,61 @@ Pane {
         }
         clip: true
         model: Chiaki.hosts
+        header: Item {
+            width: hostsView.width
+            height: consolePane.psnSignedIn ? 0 : 150
+            visible: !consolePane.psnSignedIn
+
+            Rectangle {
+                anchors {
+                    fill: parent
+                    topMargin: 8
+                    bottomMargin: 8
+                }
+                radius: 22
+                color: "#2a2233"
+                border.width: 1
+                border.color: Material.accent
+
+                RowLayout {
+                    anchors {
+                        fill: parent
+                        leftMargin: 26
+                        rightMargin: 26
+                    }
+                    spacing: 20
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+                        Label {
+                            text: qsTr("Step 1: sign in to your PlayStation account")
+                            font.pixelSize: 24
+                            font.bold: true
+                        }
+                        Label {
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                            text: qsTr("Sign in once with your PlayStation email and password. After that, connecting a console takes one click.")
+                            font.pixelSize: 17
+                            color: consolePane.softText
+                        }
+                    }
+
+                    Button {
+                        Layout.preferredHeight: 64
+                        text: qsTr("Sign in to PlayStation")
+                        font.pixelSize: 20
+                        font.bold: true
+                        focusPolicy: Qt.NoFocus
+                        Material.background: Material.accent
+                        Material.foreground: "#101218"
+                        Material.roundedScale: Material.FullScale
+                        onClicked: root.showPSNTokenDialog(false)
+                    }
+                }
+            }
+        }
         onCountChanged: {
             if(!hostsView.currentItem)
                 hostsView.incrementCurrentIndex();
@@ -252,6 +301,18 @@ Pane {
             readonly property bool standby: modelData.state == "standby"
 
             function connectToHost() {
+                // First connection: sign in to PlayStation once, then registration is automatic
+                if(!modelData.registered && !modelData.duid && !consolePane.psnSignedIn) {
+                    root.showPSNTokenDialog(false);
+                    return;
+                }
+                if(modelData.discovered)
+                    Chiaki.connectToHost(index, modelData.name);
+                else
+                    Chiaki.connectToHost(index);
+            }
+
+            function registerWithCode() {
                 if(modelData.discovered)
                     Chiaki.connectToHost(index, modelData.name);
                 else
@@ -392,6 +453,17 @@ Pane {
 
                         Button {
                             Layout.alignment: Qt.AlignRight
+                            text: qsTr("Register with a code instead")
+                            flat: true
+                            font.pixelSize: 16
+                            visible: !modelData.registered && !modelData.duid
+                            focusPolicy: Qt.NoFocus
+                            onClicked: delegate.registerWithCode()
+                            Material.roundedScale: Material.FullScale
+                        }
+
+                        Button {
+                            Layout.alignment: Qt.AlignRight
                             text: qsTr("Wake Up")
                             flat: true
                             font.pixelSize: 16
@@ -417,7 +489,7 @@ Pane {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.preferredHeight: 72
                         Layout.preferredWidth: 170
-                        text: modelData.registered || modelData.duid ? qsTr("▶  Play") : qsTr("First connection")
+                        text: modelData.registered ? qsTr("▶  Play") : qsTr("Connect")
                         font.pixelSize: 24
                         font.bold: true
                         focusPolicy: Qt.NoFocus
