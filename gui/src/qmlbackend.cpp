@@ -6,6 +6,7 @@
 #include "controllermanager.h"
 #include "psnaccountid.h"
 #include "psntoken.h"
+#include "updater.h"
 #include "systemdinhibit.h"
 #include "chiaki/remote/holepunch.h"
 #ifdef Q_OS_MACOS
@@ -296,6 +297,18 @@ QmlBackend::QmlBackend(Settings *settings, QmlMainWindow *window)
     qmlRegisterUncreatableType<QmlMainWindow>(uri, 1, 0, "ChiakiWindow", {});
     qmlRegisterUncreatableType<QmlSettings>(uri, 1, 0, "ChiakiSettings", {});
     qmlRegisterUncreatableType<StreamSession>(uri, 1, 0, "ChiakiSession", {});
+
+    // in-app updates: look for a newer build shortly after start
+    updater = new Updater(this);
+    connect(updater, &Updater::Available, this, &QmlBackend::updateAvailable);
+    connect(updater, &Updater::Progress, this, &QmlBackend::updateProgress);
+    connect(updater, &Updater::Failed, this, [this](const QString &reason) {
+        emit error(tr("Update failed"), reason);
+    });
+    connect(updater, &Updater::QuitRequested, this, []() {
+        QCoreApplication::quit();
+    }, Qt::QueuedConnection);
+    QTimer::singleShot(4000, updater, &Updater::Check);
 
     QObject *frame_obj = new QObject();
     frame_thread = new QThread(frame_obj);
@@ -2681,4 +2694,9 @@ void PsnConnectionWorker::ConnectPsnConnection(StreamSession *session, const QSt
 {
     ChiakiErrorCode result = session->ConnectPsnConnection(duid, ps5);
     emit resultReady(result);
+}
+
+void QmlBackend::installUpdate()
+{
+    updater->Install();
 }

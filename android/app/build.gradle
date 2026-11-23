@@ -28,7 +28,8 @@ android {
         applicationId "com.metallic.chiaki"
         minSdk 24
         targetSdk 35
-        versionCode 12
+        // The cloud build passes the commit time so every build is newer than the one before (needed for in-app updates)
+        versionCode((System.getenv("REMOPLAY_BUILD_ID") ?: "12").toInteger())
         versionName chiakiVersion
         externalNativeBuild {
             cmake {
@@ -99,6 +100,16 @@ android {
         signingConfigs.release.storePassword = properties.get("chiakiKeystorePW")
         signingConfigs.release.keyAlias = properties.get("chiakiKeyAlias")
         signingConfigs.release.keyPassword = properties.get("chiakiKeyPW")
+    } else if(System.getenv("REMOPLAY_KEYSTORE_FILE")) {
+        // One fixed key for every build: Android only installs an update over an app signed with the same key.
+        // The key lives in the repository secrets, never in the code.
+        println("Signing with the RemoPlay update key")
+        buildTypes.debug.signingConfig = signingConfigs.release
+        buildTypes.release.signingConfig = signingConfigs.release
+        signingConfigs.release.storeFile = file(System.getenv("REMOPLAY_KEYSTORE_FILE"))
+        signingConfigs.release.storePassword = System.getenv("REMOPLAY_KEYSTORE_PASSWORD")
+        signingConfigs.release.keyAlias = System.getenv("REMOPLAY_KEY_ALIAS")
+        signingConfigs.release.keyPassword = System.getenv("REMOPLAY_KEYSTORE_PASSWORD")
     } else {
         println("Signing not enabled")
     }

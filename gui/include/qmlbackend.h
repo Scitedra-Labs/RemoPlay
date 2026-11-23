@@ -21,6 +21,7 @@
 #endif
 
 class SystemdInhibit;
+class Updater;
 #ifdef Q_OS_MACOS
     class MacWakeSleep;
 #elif defined(Q_OS_WINDOWS)
@@ -181,6 +182,7 @@ public:
     void disableZeroCopy() { disable_zero_copy = true; };
     void enableZeroCopy()  { disable_zero_copy = false; };
 
+    Q_INVOKABLE void installUpdate();
     Q_INVOKABLE QString uiLanguage() const;
     Q_INVOKABLE void setUiLanguage(const QString &language);
     Q_INVOKABLE void deleteHost(int index);
@@ -245,6 +247,8 @@ signals:
     void windowTypeUpdated(WindowType type);
 
     void error(const QString &title, const QString &text);
+    void updateAvailable();
+    void updateProgress(int percent);
     void sessionError(const QString &title, const QString &text);
     void sessionPinDialogRequested();
     void sessionStopDialogRequested();
@@ -287,6 +291,7 @@ private:
 
     Settings *settings = {};
     QmlSettings *settings_qml = {};
+    Updater *updater = {};
     QmlMainWindow *window = {};
     StreamSession *session = {};
     QThread *frame_thread = {};

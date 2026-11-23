@@ -546,6 +546,18 @@ Item {
             root.showPSNTokenDialog(true);
         }
 
+        function onUpdateAvailable() {
+            // never interrupt a game, the check runs again on the next start
+            if (Chiaki.session)
+                return;
+            root.showConfirmDialog(qsTr("Update available"), qsTr("A new version of RemoPlay is ready. Update now? The app restarts by itself when it is done."), () => {
+                errorTitleLabel.text = qsTr("Updating RemoPlay");
+                errorTextLabel.text = qsTr("Downloading the update...");
+                errorHideTimer.start();
+                Chiaki.installUpdate();
+            });
+        }
+
         function onError(title, text) {
             errorTitleLabel.text = title;
             errorTextLabel.text = text;

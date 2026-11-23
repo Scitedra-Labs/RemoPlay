@@ -75,6 +75,8 @@ class MainActivity : AppCompatActivity()
 			discoveryMenuItem?.let { updateDiscoveryMenuItem(it, active) }
 			updateEmptyInfo()
 		})
+
+		UpdateManager.checkForUpdate(this)
 	}
 
 	private fun updateEmptyInfo()

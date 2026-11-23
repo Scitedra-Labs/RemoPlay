@@ -131,4 +131,10 @@
     <string name="preferences_fps_key">stream_fps</string>
     <string name="preferences_bitrate_key">stream_bitrate</string>
     <string name="preferences_codec_key">stream_codec</string>
+    <string name="update_title">Update available</string>
+    <string name="update_message">A new version of RemoPlay is ready. Update now?</string>
+    <string name="update_now">Update</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Downloading the update…</string>
+    <string name="update_failed">The update failed. It will be offered again next time.</string>
 </resources>

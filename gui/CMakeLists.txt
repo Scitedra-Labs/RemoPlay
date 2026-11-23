@@ -7,7 +7,7 @@ if(APPLE)
 	enable_language(OBJCXX)
 endif()
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Concurrent Svg Qml Quick Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Concurrent Svg Qml Quick Widgets Network)
 if(Qt6_VERSION VERSION_GREATER_EQUAL "6.10.0")
 	find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
 endif()
@@ -39,6 +39,8 @@ set(SOURCE_FILES
 	src/psnaccountid.cpp
 	include/psntoken.h
 	src/psntoken.cpp
+	include/updater.h
+	src/updater.cpp
 	include/jsonrequester.h
 	src/jsonrequester.cpp
 	src/qml/qml.qrc
@@ -104,7 +106,13 @@ if(CHIAKI_ENABLE_CLI)
 	target_link_libraries(chiaki chiaki-cli-lib)
 endif()
 
-target_link_libraries(chiaki Qt::Core Qt::Gui Qt::GuiPrivate Qt::Concurrent Qt::Svg Qt::Qml Qt::Quick Qt::Widgets)
+target_link_libraries(chiaki Qt::Core Qt::Gui Qt::GuiPrivate Qt::Concurrent Qt::Svg Qt::Qml Qt::Quick Qt::Widgets Qt::Network)
+# Build number used by the in-app updater, the cloud build passes the commit time. 0 = never self-update.
+set(REMOPLAY_BUILD_ID "0" CACHE STRING "Build number for the in-app updater")
+if(NOT REMOPLAY_BUILD_ID MATCHES "^[0-9]+$")
+	set(REMOPLAY_BUILD_ID "0")
+endif()
+target_compile_definitions(chiaki PRIVATE REMOPLAY_BUILD_ID=${REMOPLAY_BUILD_ID})
 if (${Qt6DBus_FOUND} AND NOT WIN32)
 	target_link_libraries(chiaki Qt::DBus)
 if (NOT APPLE)

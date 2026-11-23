@@ -37,8 +37,20 @@ jobs:
 
       - name: Build debug APK
         working-directory: android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.REMOPLAY_KEYSTORE_BASE64 }}
+          REMOPLAY_KEYSTORE_PASSWORD: ${{ secrets.REMOPLAY_KEYSTORE_PASSWORD }}
+          REMOPLAY_KEY_ALIAS: remoplay
         run: |
           chmod +x gradlew
+          # In-app updates need every build signed with the same key. Without the key in the
+          # repository secrets the build still works, it just can't update itself.
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/remoplay.keystore"
+            export REMOPLAY_KEYSTORE_FILE="$RUNNER_TEMP/remoplay.keystore"
+            export REMOPLAY_BUILD_ID="$(git log -1 --format=%ct)"
+            echo "REMOPLAY_SELF_UPDATE=1" >> "$GITHUB_ENV"
+          fi
           ./gradlew --no-daemon assembleDebug
 
       - name: Upload APK
@@ -58,3 +70,8 @@ jobs:
           cp "$(find android/app/build/outputs/apk -name '*.apk' | head -1)" RemoPlay-Android.apk
           gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "RemoPlay" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
           gh release upload latest RemoPlay-Android.apk --repo ${{ github.repository }} --clobber
+          # tells installed copies that a newer build exists (in-app update), uploaded after the APK on purpose
+          if [ "$REMOPLAY_SELF_UPDATE" = "1" ]; then
+            echo "{\"build\": $(git log -1 --format=%ct)}" > version-android.json
+            gh release upload latest version-android.json --repo ${{ github.repository }} --clobber
+          fi

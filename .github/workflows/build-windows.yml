@@ -100,9 +100,13 @@ jobs:
           INSTALL_PREFIX=/mingw64 scripts/build-hidapi.sh .
           cp /mingw64/lib/pkgconfig/sdl2-compat.pc /mingw64/lib/pkgconfig/sdl2.pc
 
+      - name: Determine build number
+        shell: bash
+        run: echo "REMOPLAY_BUILD_ID=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+
       - name: Configure chiaki-ng
         run: |
-          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCHIAKI_ENABLE_CLI=OFF
+          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCHIAKI_ENABLE_CLI=OFF -DREMOPLAY_BUILD_ID="${REMOPLAY_BUILD_ID:-0}"
 
       - name: Build chiaki-ng
         run: |
@@ -152,3 +156,6 @@ jobs:
           cp chiaki-ng-windows-installer.exe RemoPlay-Windows-Setup.exe
           gh release view latest --repo ${{ github.repository }} || gh release create latest --repo ${{ github.repository }} --title "RemoPlay" --notes "Automatic build of the newest version. Download links are on the project page." --latest || true
           gh release upload latest RemoPlay-Windows-Setup.exe --repo ${{ github.repository }} --clobber
+          # tells installed copies that a newer build exists (in-app update), uploaded after the installer on purpose
+          echo "{\"build\": $(git log -1 --format=%ct)}" > version-windows.json
+          gh release upload latest version-windows.json --repo ${{ github.repository }} --clobber
