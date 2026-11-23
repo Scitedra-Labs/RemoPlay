@@ -48,6 +48,27 @@
             app:layout_constraintTop_toBottomOf="@id/emptyInfoImageView"
             android:gravity="center_horizontal"
             android:maxWidth="300dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/psnAccountButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:text="@string/regist_psn_login_button"
+            app:backgroundTint="@color/accent"
+            android:textColor="#101218"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/psnAccountInfoTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/psn_account_needed_info"
+            android:textColor="@color/text_secondary"
+            android:gravity="center_horizontal"
+            android:maxWidth="300dp"/>
     </LinearLayout>
 
     <FrameLayout

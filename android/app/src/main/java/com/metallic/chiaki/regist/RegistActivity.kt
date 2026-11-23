@@ -67,6 +67,7 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 		}
 		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString(PREF_ACCOUNT_ID, null)?.let {
 			binding.psnIdEditText.setText(it)
+			binding.psnLoginButton.setText(R.string.psn_account_signed_in)
 		}
 
 		binding.ps4VersionRadioGroup.check(when(viewModel.ps4Version.value ?: RegistViewModel.ConsoleVersion.PS5) {
@@ -169,6 +170,7 @@ class RegistActivity: AppCompatActivity(), RevealActivity
 			binding.psnIdEditText.setText(accountId)
 			binding.psnIdEditText.error = null
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_ACCOUNT_ID, accountId).apply()
+			binding.psnLoginButton.setText(R.string.psn_account_signed_in)
 			binding.pinEditText.requestFocus()
 		}
 	}

@@ -55,6 +55,10 @@ class MainActivity : AppCompatActivity()
 		binding.registerButton.setOnClickListener { showRegistration() }
 		binding.registerLabelButton.setOnClickListener { showRegistration() }
 
+		binding.psnAccountButton.setOnClickListener {
+			startActivity(Intent(this, com.metallic.chiaki.regist.PsnLoginActivity::class.java))
+		}
+
 		setupBackNavigation()
 
 		viewModel = ViewModelProvider(this, viewModelFactory { MainViewModel(getDatabase(this), Preferences(this)) })
@@ -75,6 +79,13 @@ class MainActivity : AppCompatActivity()
 			discoveryMenuItem?.let { updateDiscoveryMenuItem(it, active) }
 			updateEmptyInfo()
 		})
+	}
+
+	private fun updatePsnAccountButton()
+	{
+		val signedIn = com.metallic.chiaki.regist.PsnLoginActivity.savedAccountId(this) != null
+		binding.psnAccountButton.setText(if(signedIn) R.string.psn_account_signed_in else R.string.regist_psn_login_button)
+		binding.psnAccountInfoTextView.setText(if(signedIn) R.string.psn_account_ready_info else R.string.psn_account_needed_info)
 	}
 
 	private fun updateEmptyInfo()
@@ -99,6 +110,7 @@ class MainActivity : AppCompatActivity()
 	override fun onStart()
 	{
 		super.onStart()
+		updatePsnAccountButton()
 		viewModel.discoveryManager.resume()
 	}
 

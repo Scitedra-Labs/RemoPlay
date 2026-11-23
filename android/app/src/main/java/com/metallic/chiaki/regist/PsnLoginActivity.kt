@@ -37,6 +37,12 @@ class PsnLoginActivity: AppCompatActivity()
 	companion object
 	{
 		const val EXTRA_ACCOUNT_ID = "psn_account_id"
+		const val PREFS_NAME = "remoplay_psn"
+		const val PREF_ACCOUNT_ID = "account_id"
+
+		/** The Account ID saved by an earlier sign-in, or null when not signed in yet. */
+		fun savedAccountId(context: android.content.Context): String?
+			= context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE).getString(PREF_ACCOUNT_ID, null)
 
 		private const val CLIENT_ID = "ba495a24-818c-472b-b12d-ff231c1b5745"
 		private const val CLIENT_SECRET = "mvaiZkRsAsI1IBkY"
@@ -111,6 +117,9 @@ class PsnLoginActivity: AppCompatActivity()
 					fail()
 				else
 				{
+					// keep the account on this device so it is ready before any console is connected
+					getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_ACCOUNT_ID, accountId).apply()
+					Toast.makeText(this, R.string.psn_account_signed_in_toast, Toast.LENGTH_LONG).show()
 					setResult(Activity.RESULT_OK, Intent().putExtra(EXTRA_ACCOUNT_ID, accountId))
 					finish()
 				}
