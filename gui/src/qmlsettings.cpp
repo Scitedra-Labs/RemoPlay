@@ -1777,7 +1777,14 @@ QVariantList QmlSettings::controllerMapping() const
         QVariantMap m;
         m["buttonName"] = Settings::GetChiakiControllerButtonName(it.key());
         m["buttonValue"] = it.key();
-        m["keyName"] = QKeySequence(it.value()).toString();
+        // modifier keys have no readable QKeySequence text
+        switch (it.value()) {
+        case Qt::Key_Shift: m["keyName"] = QStringLiteral("Shift"); break;
+        case Qt::Key_Control: m["keyName"] = QStringLiteral("Ctrl"); break;
+        case Qt::Key_Alt: m["keyName"] = QStringLiteral("Alt"); break;
+        case Qt::Key_Meta: m["keyName"] = QStringLiteral("Meta"); break;
+        default: m["keyName"] = QKeySequence(it.value()).toString(); break;
+        }
         out.append(m);
     }
     return out;

@@ -159,6 +159,7 @@ class StreamSession : public QObject
 	Q_PROPERTY(double measuredBitrate READ GetMeasuredBitrate NOTIFY MeasuredBitrateChanged)
 	Q_PROPERTY(double averagePacketLoss READ GetAveragePacketLoss NOTIFY AveragePacketLossChanged)
 	Q_PROPERTY(bool muted READ GetMuted WRITE SetMuted NOTIFY MutedChanged)
+	Q_PROPERTY(bool drivingMode READ GetDrivingMode NOTIFY DrivingModeChanged)
 	Q_PROPERTY(bool cantDisplay READ GetCantDisplay NOTIFY CantDisplayChanged)
 	Q_PROPERTY(int framesLost READ GetFramesLost NOTIFY FramesLostChanged)
 
@@ -241,6 +242,9 @@ class StreamSession : public QObject
 		int mouse_stick_idle_ticks;
 		QTimer *mouse_stick_timer;
 		void MouseStickTick();
+		// keyboard + mouse play: in a vehicle forward/back are the triggers instead of the stick
+		bool driving_mode;
+		void AddKeyboardAliases();
 		bool dpad_regular;
 		bool dpad_regular_touch_switched;
 		uint dpad_touch_shortcut1;
@@ -365,6 +369,7 @@ class StreamSession : public QObject
 		quint64 DecoderFlushGeneration() const { return decoder_flush_generation.loadRelaxed(); }
 		int GetFramesLost()		{ return frames_lost; }
 		bool GetMuted()	{ return muted; }
+		bool GetDrivingMode() const { return driving_mode; }
 		void SetMuted(bool enable)	{ if (enable != muted) ToggleMute(); }
 		void SetAudioVolume(int volume) { audio_volume = volume; }
 		bool GetCantDisplay()	{ return cant_display; }
@@ -411,6 +416,7 @@ class StreamSession : public QObject
 		void AveragePacketLossChanged();
 		void FramesLostChanged();
 		void MutedChanged();
+		void DrivingModeChanged();
 		void CantDisplayChanged(bool cant_display);
 		void FecFailure();
 

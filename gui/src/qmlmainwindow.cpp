@@ -7665,6 +7665,10 @@ bool QmlMainWindow::handleShortcut(QKeyEvent *event)
 
     if (!event->modifiers().testFlag(Qt::ControlModifier))
         return false;
+    // Keyboard + mouse play uses Ctrl as a game key (crouch), so Ctrl+S / Ctrl+Q etc. would fire
+    // in the middle of a game. While streaming in that mode the shortcuts need Ctrl+Alt instead.
+    if (session && session->MouseStickEnabled() && !grab_input && !event->modifiers().testFlag(Qt::AltModifier))
+        return false;
 
     switch (event->key()) {
     case Qt::Key_S:

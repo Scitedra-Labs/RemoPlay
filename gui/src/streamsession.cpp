@@ -687,6 +687,9 @@ StreamSession::StreamSession(const StreamSessionConnectInfo &connect_info, QObje
 	}
 #endif
 	key_map = connect_info.key_map;
+	driving_mode = false;
+	if(mouse_stick_enabled)
+		AddKeyboardAliases();
 	if (connect_info.enable_dualsense)
 	{
 		InitHaptics();
@@ -949,12 +952,49 @@ void StreamSession::MouseStickTick()
 	SendFeedbackState();
 }
 
+// Extra keys for keyboard + mouse play. They never replace a key the user has mapped.
+void StreamSession::AddKeyboardAliases()
+{
+	auto add = [this](int key, int button) {
+		if(!key_map.contains(Qt::Key(key)))
+			key_map[Qt::Key(key)] = button;
+	};
+	// second keys GTA V players expect for the same controller button
+	add(Qt::Key_E, CHIAKI_CONTROLLER_BUTTON_PYRAMID);      // context action
+	add(Qt::Key_G, CHIAKI_CONTROLLER_BUTTON_DPAD_RIGHT);   // detonate
+	add(Qt::Key_H, CHIAKI_CONTROLLER_BUTTON_MOON);         // headlights
+	add(Qt::Key_X, CHIAKI_CONTROLLER_BUTTON_MOON);         // duck in vehicle
+	add(Qt::Key_Z, CHIAKI_CONTROLLER_BUTTON_DPAD_DOWN);    // minimap
+	add(Qt::Key_Escape, CHIAKI_CONTROLLER_BUTTON_OPTIONS); // pause
+	// the physical Control key on a Mac keyboard arrives as Meta
+	if(key_map.contains(Qt::Key_Control))
+		add(Qt::Key_Meta, key_map[Qt::Key_Control]);
+
+	// The same physical keys while the Hebrew keyboard layout is active
+	static const struct { int latin; int hebrew; } hebrew_layout[] = {
+		{Qt::Key_Q, Qt::Key_Slash}, {Qt::Key_W, Qt::Key_Apostrophe}, {Qt::Key_E, 0x05E7}, {Qt::Key_R, 0x05E8},
+		{Qt::Key_T, 0x05D0}, {Qt::Key_Y, 0x05D8}, {Qt::Key_U, 0x05D5}, {Qt::Key_I, 0x05DF}, {Qt::Key_O, 0x05DD},
+		{Qt::Key_P, 0x05E4}, {Qt::Key_A, 0x05E9}, {Qt::Key_S, 0x05D3}, {Qt::Key_D, 0x05D2}, {Qt::Key_F, 0x05DB},
+		{Qt::Key_G, 0x05E2}, {Qt::Key_H, 0x05D9}, {Qt::Key_J, 0x05D7}, {Qt::Key_K, 0x05DC}, {Qt::Key_L, 0x05DA},
+		{Qt::Key_Z, 0x05D6}, {Qt::Key_X, 0x05E1}, {Qt::Key_C, 0x05D1}, {Qt::Key_V, 0x05D4}, {Qt::Key_B, 0x05E0},
+		{Qt::Key_N, 0x05DE}, {Qt::Key_M, 0x05E6},
+	};
+	for(const auto &pair : hebrew_layout)
+	{
+		if(key_map.contains(Qt::Key(pair.latin)))
+			add(pair.hebrew, key_map[Qt::Key(pair.latin)]);
+	}
+}
+
 void StreamSession::HandleMousePressEvent(QMouseEvent *event)
 {
 	if(mouse_stick_enabled)
 	{
-		// left => R2 (shoot / accelerate), right => L2 (aim / brake), middle => R3
-		if(event->button() == Qt::LeftButton)
+		// left => R2 (shoot), right => L2 (aim), middle => R3
+		// while driving the left button is R1 (shoot from the vehicle), W and S are the triggers
+		if(event->button() == Qt::LeftButton && driving_mode)
+			keyboard_state.buttons |= CHIAKI_CONTROLLER_BUTTON_R1;
+		else if(event->button() == Qt::LeftButton)
 			keyboard_state.r2_state = 0xff;
 		else if(event->button() == Qt::RightButton)
 			keyboard_state.l2_state = 0xff;
@@ -975,7 +1015,9 @@ void StreamSession::HandleMouseReleaseEvent(QMouseEvent *event)
 {
 	if(mouse_stick_enabled)
 	{
-		if(event->button() == Qt::LeftButton)
+		if(event->button() == Qt::LeftButton && driving_mode)
+			keyboard_state.buttons &= ~CHIAKI_CONTROLLER_BUTTON_R1;
+		else if(event->button() == Qt::LeftButton)
 			keyboard_state.r2_state = 0;
 		else if(event->button() == Qt::RightButton)
 			keyboard_state.l2_state = 0;
@@ -1036,6 +1078,23 @@ void StreamSession::HandleKeyboardEvent(QKeyEvent *event)
 {
 	if(!keyboard_controller_enabled)
 		return;
+	// keyboard + mouse play: ` switches between on foot and driving (; is the same key on the Hebrew layout)
+	if(mouse_stick_enabled && (event->key() == Qt::Key_QuoteLeft || event->key() == Qt::Key_AsciiTilde || event->key() == Qt::Key_Semicolon)
+		&& !key_map.contains(Qt::Key(event->key())))
+	{
+		if(event->type() == QEvent::Type::KeyPress && !event->isAutoRepeat())
+		{
+			driving_mode = !driving_mode;
+			// let go of everything the previous mode may still be holding
+			keyboard_state.l2_state = 0;
+			keyboard_state.r2_state = 0;
+			keyboard_state.left_y = 0;
+			keyboard_state.buttons &= ~CHIAKI_CONTROLLER_BUTTON_R1;
+			SendFeedbackState();
+			emit DrivingModeChanged();
+		}
+		return;
+	}
 	if(key_map.contains(Qt::Key(event->key())) == false)
 		return;
 
@@ -1044,6 +1103,15 @@ void StreamSession::HandleKeyboardEvent(QKeyEvent *event)
 
 	int button = key_map[Qt::Key(event->key())];
 	bool press_event = event->type() == QEvent::Type::KeyPress;
+
+	if(mouse_stick_enabled && driving_mode)
+	{
+		// in a vehicle forward is accelerate (R2) and back is brake / reverse (L2), like W and S in GTA V
+		if(button == static_cast<int>(ControllerButtonExt::ANALOG_STICK_LEFT_Y_UP))
+			button = CHIAKI_CONTROLLER_ANALOG_BUTTON_R2;
+		else if(button == static_cast<int>(ControllerButtonExt::ANALOG_STICK_LEFT_Y_DOWN))
+			button = CHIAKI_CONTROLLER_ANALOG_BUTTON_L2;
+	}
 
 	switch(button)
 	{

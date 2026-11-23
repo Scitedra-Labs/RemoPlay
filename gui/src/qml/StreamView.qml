@@ -1309,4 +1309,41 @@ Item {
         source: "qrc:/ConnectionBadge.qml"
         active: !!Chiaki.session
     }
+
+    // keyboard + mouse play: short notice when switching between on foot and driving
+    Rectangle {
+        id: drivingModeNotice
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 30
+        width: drivingModeLabel.implicitWidth + 40
+        height: drivingModeLabel.implicitHeight + 20
+        radius: height / 2
+        color: "#cc000000"
+        visible: opacity > 0
+        opacity: 0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+
+        Label {
+            id: drivingModeLabel
+            anchors.centerIn: parent
+            color: "white"
+            font.pixelSize: 22
+        }
+
+        Timer {
+            id: drivingModeTimer
+            interval: 1800
+            onTriggered: drivingModeNotice.opacity = 0
+        }
+
+        property bool driving: Chiaki.session ? Chiaki.session.drivingMode : false
+        onDrivingChanged: {
+            if (!Chiaki.session)
+                return;
+            drivingModeLabel.text = driving ? qsTr("Driving mode") : qsTr("On foot mode");
+            drivingModeNotice.opacity = 1;
+            drivingModeTimer.restart();
+        }
+    }
 }
