@@ -2408,6 +2408,95 @@ DialogView {
                                 }
                             }
                         }
+                        CheckBox {
+                            text: qsTr("Mouse as right stick")
+                            checked: {
+                                Chiaki.settings.mouseStickEnabled
+                            }
+                            onToggled: Chiaki.settings.mouseStickEnabled = checked
+                            Layout.alignment: Qt.AlignRight
+                            property bool firstInFocusChain: false
+                            property bool lastInFocusChain: false
+                            Material.roundedScale: Material.SmallScale
+                            Material.background: visualFocus ? Material.accent : undefined
+                            onActiveFocusChanged: if (activeFocus) keysFlick.ensureItemVisible(this)
+
+                            Component.onDestruction: {
+                                if (visualFocus) {
+                                    let item = nextItemInFocusChain();
+                                    if (item)
+                                        item.forceActiveFocus(Qt.TabFocusReason);
+                                }
+                            }
+                            Keys.onPressed: (event) => {
+                                switch (event.key) {
+                                    case Qt.Key_Left:
+                                        if (!firstInFocusChain) {
+                                            let item = nextItemInFocusChain(false);
+                                            if (item) {
+                                                item.forceActiveFocus(Qt.TabFocusReason);
+                                                keysFlick.ensureItemVisible(item);
+                                            }
+                                            event.accepted = true;
+                                        }
+                                        break;
+                                    case Qt.Key_Down:
+                                        if (!lastInFocusChain) {
+                                            let item = nextItemInFocusChain();
+                                            if (item) {
+                                                item.forceActiveFocus(Qt.TabFocusReason);
+                                                keysFlick.ensureItemVisible(item);
+                                            }
+                                            for(var i = 0; i < 3; i++)
+                                            {
+                                                let item2 = item.nextItemInFocusChain();
+                                                if (item)
+                                                {
+                                                    item.forceActiveFocus(Qt.TabFocusReason);
+                                                    keysFlick.ensureItemVisible(item);
+                                                    item = item2;
+                                                }
+                                            }
+                                            event.accepted = true;
+                                        }
+                                        break;
+                                    case Qt.Key_Return:
+                                        if (visualFocus) {
+                                            toggle();
+                                            toggled();
+                                        }
+                                        event.accepted = true;
+                                        break;
+                                }
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            enabled: Chiaki.settings.mouseStickEnabled
+                            Label {
+                                text: qsTr("Mouse sensitivity:")
+                            }
+                            Slider {
+                                id: mouseStickSensitivity
+                                Layout.preferredWidth: 170
+                                from: 0.2
+                                to: 3.0
+                                stepSize: 0.1
+                                value: Chiaki.settings.mouseStickSensitivity
+                                onMoved: Chiaki.settings.mouseStickSensitivity = value
+                                Material.roundedScale: Material.SmallScale
+                                onActiveFocusChanged: if (activeFocus) keysFlick.ensureItemVisible(this)
+                            }
+                            Label {
+                                text: mouseStickSensitivity.value.toFixed(1)
+                            }
+                        }
+                        Label {
+                            Layout.maximumWidth: 260
+                            wrapMode: Text.WordWrap
+                            opacity: 0.7
+                            text: qsTr("Left click: R2, right click: L2, middle click: R3")
+                        }
                         Repeater {
                             id: chiakiKeys
                             model: Chiaki.settings.controllerMapping

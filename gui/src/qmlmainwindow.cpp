@@ -20,6 +20,7 @@ extern "C" {
 #include <libavutil/pixfmt.h>
 }
 
+#include <QCursor>
 #include <QByteArray>
 #include <QPointer>
 #include <QColor>
@@ -7710,8 +7711,20 @@ bool QmlMainWindow::event(QEvent *event)
         if (static_cast<QMouseEvent*>(event)->source() != Qt::MouseEventNotSynthesized)
             return true;
         if (session && !grab_input) {
-            if (event->type() == QEvent::MouseMove)
-                session->HandleMouseMoveEvent(static_cast<QMouseEvent*>(event), width(), height());
+            if (event->type() == QEvent::MouseMove) {
+                QMouseEvent *me = static_cast<QMouseEvent*>(event);
+                session->HandleMouseMoveEvent(me, width(), height());
+                if (session->MouseStickEnabled()) {
+                    // keep the pointer away from the window edges so the mouse can turn endlessly
+                    const QPointF p = me->scenePosition();
+                    const qreal mx = width() / 4.0, my = height() / 4.0;
+                    if (p.x() < mx || p.x() > width() - mx || p.y() < my || p.y() > height() - my) {
+                        const QPoint center(width() / 2, height() / 2);
+                        session->ResetMouseStickOrigin(center);
+                        QCursor::setPos(mapToGlobal(center));
+                    }
+                }
+            }
             else if (event->type() == QEvent::MouseButtonPress)
                 session->HandleMousePressEvent(static_cast<QMouseEvent*>(event));
             else if (event->type() == QEvent::MouseButtonRelease)

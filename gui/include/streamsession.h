@@ -95,6 +95,8 @@ class SdeckHapticsWorker;
 		bool enable_keyboard;
 		bool keyboard_controller_enabled;
 		bool mouse_touch_enabled;
+		bool mouse_stick_enabled;
+		float mouse_stick_sensitivity;
 		bool enable_dualsense;
 		bool auto_regist;
 		float haptic_override;
@@ -229,6 +231,16 @@ class StreamSession : public QObject
 		float haptic_override;
 		bool keyboard_controller_enabled;
 		bool mouse_touch_enabled;
+		// mouse as right stick (keyboard + mouse play)
+		bool mouse_stick_enabled;
+		float mouse_stick_sensitivity;
+		double mouse_stick_dx, mouse_stick_dy;
+		QPointF mouse_stick_last;
+		bool mouse_stick_has_last;
+		bool mouse_stick_active;
+		int mouse_stick_idle_ticks;
+		QTimer *mouse_stick_timer;
+		void MouseStickTick();
 		bool dpad_regular;
 		bool dpad_regular_touch_switched;
 		uint dpad_touch_shortcut1;
@@ -371,6 +383,8 @@ class StreamSession : public QObject
 		void HandleMouseReleaseEvent(QMouseEvent *event);
 		void HandleMousePressEvent(QMouseEvent *event);
 		void HandleMouseMoveEvent(QMouseEvent *event, qreal width, qreal height);
+		bool MouseStickEnabled() const { return mouse_stick_enabled; }
+		void ResetMouseStickOrigin(const QPointF &pos) { mouse_stick_last = pos; mouse_stick_has_last = true; }
 #if CHIAKI_GUI_ENABLE_SPEEX
 		bool ProcessMicFrame(int16_t *echo_buf);
 #endif

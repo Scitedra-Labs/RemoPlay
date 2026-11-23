@@ -19,6 +19,13 @@
 #include <algorithm>
 
 #include <cstring>
+#include <cmath>
+
+#define MOUSE_STICK_UPDATE_INTERVAL_MS 8
+// stick units per pixel moved within one tick, at sensitivity 1.0
+#define MOUSE_STICK_GAIN 2600.0
+// added to any movement so that slow mouse moves get past the game's stick dead zone
+#define MOUSE_STICK_DEADZONE_OFFSET 5200.0
 
 #define SETSU_UPDATE_INTERVAL_MS 4
 #define STEAMDECK_UPDATE_INTERVAL_MS 4
@@ -303,6 +310,8 @@ StreamSessionConnectInfo::StreamSessionConnectInfo(
 	const bool keyboard_controller_enabled_setting = settings->GetKeyboardEnabled();
 	this->keyboard_controller_enabled = keyboard_controller_enabled_setting;
 	this->mouse_touch_enabled = settings->GetMouseTouchEnabled();
+	this->mouse_stick_enabled = settings->GetMouseStickEnabled();
+	this->mouse_stick_sensitivity = settings->GetMouseStickSensitivity();
 	this->enable_keyboard = false;
 	this->enable_dualsense = true;
 	this->enable_idr_on_fec_failure = settings->GetIDROnFECFailureEnabled();
@@ -462,6 +471,8 @@ StreamSession::StreamSession(const StreamSessionConnectInfo &connect_info, QObje
 #endif
 	audio_buffer_size = connect_info.audio_buffer_size;
 	mouse_touch_enabled = connect_info.mouse_touch_enabled;
+	mouse_stick_enabled = connect_info.mouse_stick_enabled;
+	mouse_stick_sensitivity = connect_info.mouse_stick_sensitivity;
 	keyboard_controller_enabled = connect_info.keyboard_controller_enabled;
 	host = connect_info.host;
 	QByteArray host_str = connect_info.host.toUtf8();
@@ -516,6 +527,16 @@ StreamSession::StreamSession(const StreamSessionConnectInfo &connect_info, QObje
 	chiaki_controller_state_set_idle(&touch_state);
 	touch_tracker=QMap<int, uint8_t>();
 	mouse_touch_id=-1;
+	mouse_stick_dx = mouse_stick_dy = 0.0;
+	mouse_stick_has_last = false;
+	mouse_stick_active = false;
+	mouse_stick_idle_ticks = 0;
+	mouse_stick_timer = new QTimer(this);
+	mouse_stick_timer->setTimerType(Qt::PreciseTimer);
+	mouse_stick_timer->setInterval(MOUSE_STICK_UPDATE_INTERVAL_MS);
+	connect(mouse_stick_timer, &QTimer::timeout, this, &StreamSession::MouseStickTick);
+	if(mouse_stick_enabled)
+		mouse_stick_timer->start();
 	dpad_touch_id =-1;
 	chiaki_controller_state_set_idle(&dpad_touch_state);
 	dpad_touch_value = QPair<uint16_t, uint16_t>(0,0);
@@ -898,8 +919,50 @@ void StreamSession::GoHome()
 	chiaki_session_go_home(&session);
 }
 
+// Mouse as right stick: mouse movement is turned into right stick deflection so a
+// controller-only game can be played with keyboard + mouse.
+
+void StreamSession::MouseStickTick()
+{
+	double dx = mouse_stick_dx;
+	double dy = mouse_stick_dy;
+	mouse_stick_dx = mouse_stick_dy = 0.0;
+	if(dx == 0.0 && dy == 0.0)
+	{
+		if(!mouse_stick_active)
+			return;
+		// keep the last value for one tick, mouse reports don't arrive on every tick
+		if(++mouse_stick_idle_ticks < 2)
+			return;
+		keyboard_state.right_x = 0;
+		keyboard_state.right_y = 0;
+		mouse_stick_active = false;
+		SendFeedbackState();
+		return;
+	}
+	mouse_stick_idle_ticks = 0;
+	double mag = std::hypot(dx, dy);
+	double out = std::min(MOUSE_STICK_DEADZONE_OFFSET + mag * MOUSE_STICK_GAIN * (double)mouse_stick_sensitivity, 32767.0);
+	keyboard_state.right_x = (int16_t)(dx / mag * out);
+	keyboard_state.right_y = (int16_t)(dy / mag * out);
+	mouse_stick_active = true;
+	SendFeedbackState();
+}
+
 void StreamSession::HandleMousePressEvent(QMouseEvent *event)
 {
+	if(mouse_stick_enabled)
+	{
+		// left => R2 (shoot / accelerate), right => L2 (aim / brake), middle => R3
+		if(event->button() == Qt::LeftButton)
+			keyboard_state.r2_state = 0xff;
+		else if(event->button() == Qt::RightButton)
+			keyboard_state.l2_state = 0xff;
+		else if(event->button() == Qt::MiddleButton)
+			keyboard_state.buttons |= CHIAKI_CONTROLLER_BUTTON_R3;
+		SendFeedbackState();
+		return;
+	}
 	if(!mouse_touch_enabled)
 		return;
 	// left button for touchpad gestures, others => touchpad click
@@ -910,6 +973,17 @@ void StreamSession::HandleMousePressEvent(QMouseEvent *event)
 
 void StreamSession::HandleMouseReleaseEvent(QMouseEvent *event)
 {
+	if(mouse_stick_enabled)
+	{
+		if(event->button() == Qt::LeftButton)
+			keyboard_state.r2_state = 0;
+		else if(event->button() == Qt::RightButton)
+			keyboard_state.l2_state = 0;
+		else if(event->button() == Qt::MiddleButton)
+			keyboard_state.buttons &= ~CHIAKI_CONTROLLER_BUTTON_R3;
+		SendFeedbackState();
+		return;
+	}
 	if(!mouse_touch_enabled)
 		return;
 	// left button => end of touchpad gesture
@@ -927,6 +1001,19 @@ void StreamSession::HandleMouseReleaseEvent(QMouseEvent *event)
 
 void StreamSession::HandleMouseMoveEvent(QMouseEvent *event, qreal width, qreal height)
 {
+	if(mouse_stick_enabled)
+	{
+		// only collect movement here, MouseStickTick turns it into stick deflection
+		QPointF pos = event->scenePosition();
+		if(mouse_stick_has_last)
+		{
+			mouse_stick_dx += pos.x() - mouse_stick_last.x();
+			mouse_stick_dy += pos.y() - mouse_stick_last.y();
+		}
+		mouse_stick_last = pos;
+		mouse_stick_has_last = true;
+		return;
+	}
 	if(!mouse_touch_enabled)
 		return;
 	// left button with move => touchpad gesture, otherwise ignore
